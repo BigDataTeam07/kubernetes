@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: amazon-music-review-kafka
+  namespace: amazon-music-review
+spec:
+  serviceName: "amazon-music-review-kafka-service"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: amazon-music-review-kafka
+  template:
+    metadata:
+      labels:
+        app: amazon-music-review-kafka
+    spec:
+      containers:
+        - name: kafka
+          image: apache/kafka:4.0.0
+          ports:
+            - containerPort: 9092
+              name: plaintext
+            - containerPort: 9093
+              name: controller
+          volumeMounts:
+            - name: kafka-config
+              mountPath: /opt/kafka/config/kraft/server.properties
+              subPath: server.properties
+            - name: kafka-data
+              mountPath: /var/lib/kafka/data
+            - name: format-disk
+              mountPath: /tmp/format
+          env:
+            - name: CLUSTER_ID
+              value: "MWYyM2Y5NmUtNTczYi00MjRkLWI5NjAtOWMwNzM4YWM"
+          command:
+            - /bin/bash
+            - -c
+            - |
+              if [ ! -f /tmp/format/formatted ]; then
+                # Format the storage
+                echo "Formatting Kafka storage directory..."
+                kafka-storage format -t $CLUSTER_ID -c /opt/kafka/config/kraft/server.properties
+                touch /tmp/format/formatted
+              fi
+
+              # Start Kafka
+              exec /opt/kafka/bin/kafka-server-start.sh /opt/kafka/config/kraft/server.properties
+      volumes:
+        - name: kafka-config
+          configMap:
+            name: amazon-music-review-kafka-config
+        - name: kafka-data
+          persistentVolumeClaim:
+            claimName: amazon-music-review-kafka-data
+        - name: format-disk
+          emptyDir: {}
