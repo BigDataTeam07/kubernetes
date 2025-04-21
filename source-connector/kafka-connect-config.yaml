@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: amazon-music-review-kafka-connect-config
+  namespace: amazon-music-review
+data:
+  connect-distributed.properties: |
+    # Basic configuration for a distributed Kafka Connect worker
+    bootstrap.servers=amazon-music-review-kafka-service:9092
+    
+    # Converter settings
+    key.converter=org.apache.kafka.connect.storage.StringConverter
+    value.converter=org.apache.kafka.connect.json.JsonConverter
+    value.converter.schemas.enable=false
+    
+    # Internal converter settings
+    internal.key.converter=org.apache.kafka.connect.json.JsonConverter
+    internal.value.converter=org.apache.kafka.connect.json.JsonConverter
+    internal.key.converter.schemas.enable=false
+    internal.value.converter.schemas.enable=false
+    
+    # REST API settings
+    rest.port=8083
+    rest.advertised.host.name=${HOSTNAME}
+    
+    # Storage settings for a distributed cluster
+    group.id=connect-cluster
+    config.storage.topic=connect-configs
+    config.storage.replication.factor=1
+    offset.storage.topic=connect-offsets
+    offset.storage.replication.factor=1
+    offset.storage.partitions=3
+    status.storage.topic=connect-status
+    status.storage.replication.factor=1
+    status.storage.partitions=3
+    
+    # Plugin path for connectors
+    plugin.path=/usr/share/java,/usr/share/confluent-hub-components,/usr/share/filepulse
+    
+    # Worker settings
+    task.shutdown.graceful.timeout.ms=10000
+    offset.flush.interval.ms=10000
