@@ -13,16 +13,39 @@ spec:
       labels:
         app: amazon-music-review-kafka-connect
     spec:
+      initContainers:
+        - name: init-kafka-connect
+          image: busybox
+          command:
+            [
+              "sh",
+              "-c",
+              "mkdir -p /etc/kafka-connect/secrets /etc/kafka-connect/jars /app/data/processed /app/data/error /usr/share/filepulse",
+            ]
+          volumeMounts:
+            - name: kafka-connect-config
+              mountPath: /etc/kafka-connect
+            - name: kafka-connect-data
+              mountPath: /app/data
+            - name: plugins-dir
+              mountPath: /usr/share/filepulse
       containers:
         - name: kafka-connect
           image: confluentinc/cp-kafka-connect:latest
           ports:
             - containerPort: 8083
+          resources:
+            requests:
+              cpu: "1"
+              memory: "1Gi"
+            limits:
+              cpu: "2"
+              memory: "2Gi"
           volumeMounts:
             - name: kafka-connect-config
-              mountPath: /etc/kafka-connect/
+              mountPath: /etc/kafka-connect
             - name: filepulse-config
-              mountPath: /etc/kafka-connect/filepulse/
+              mountPath: /etc/kafka-connect/filepulse
             - name: kafka-connect-data
               mountPath: /app/data
             - name: plugins-dir
@@ -55,7 +78,7 @@ spec:
                 fieldRef:
                   fieldPath: status.podIP
             - name: CONNECT_PLUGIN_PATH
-              value: "/usr/share/java,/usr/share/confluent-hub-components,/usr/share/filestream-connectors,/usr/share/filepulse"
+              value: "/usr/share/java,/usr/share/confluent-hub-components"
           lifecycle:
             postStart:
               exec:
@@ -63,23 +86,34 @@ spec:
                   - "sh"
                   - "-c"
                   - |
-                    # Create directories
-                    mkdir -p /app/data/processed /app/data/error /usr/share/filepulse
-                    
-                    # Download and install File Pulse connector
-                    curl -L https://github.com/streamthoughts/kafka-connect-file-pulse/releases/download/v2.9.0/streamthoughts-kafka-connect-file-pulse-2.9.0.zip -o /tmp/file-pulse.zip
-                    unzip /tmp/file-pulse.zip -d /tmp/file-pulse
-                    cp -r /tmp/file-pulse/lib/* /usr/share/filepulse/
-                    
                     # Wait for Kafka Connect to be up
                     echo "Waiting for Kafka Connect to start..."
-                    until curl -s http://localhost:8083/connectors >/dev/null; do
-                      sleep 2
+
+                    # Download and install File Pulse connector
+                    cd /tmp
+                    curl -L https://github.com/streamthoughts/kafka-connect-file-pulse/releases/download/v2.9.0/streamthoughts-kafka-connect-file-pulse-2.9.0.zip -o file-pulse.zip
+                    unzip -o file-pulse.zip
+                    mkdir -p /usr/share/confluent-hub-components/filepulse
+                    cp -r /tmp/lib/* /usr/share/confluent-hub-components/filepulse/
+
+                    # Wait for Kafka Connect API to be available
+                    COUNTER=0
+                    while ! curl -s http://localhost:8083/connectors; do
+                      echo "Waiting for Kafka Connect REST API..."
+                      sleep 5
+                      COUNTER=$((COUNTER+1))
+                      if [ $COUNTER -gt 10 ]; then
+                        echo "Timed out waiting for Kafka Connect REST API"
+                        exit 1
+                      fi
                     done
-                    
+
+                    # Create necessary directories
+                    mkdir -p /app/data/processed /app/data/error
+
                     # Deploy the connector configuration
                     echo "Deploying File Pulse connector configuration..."
-                    sleep 10
+                    sleep 5
                     curl -X POST \
                       -H "Content-Type: application/json" \
                       --data @/etc/kafka-connect/filepulse/filepulse-connector.json \
