@@ -8,16 +8,13 @@ data:
   KAFKA_SERVICE_NAME: "amazon-music-review-kafka-service"
   KAFKA_PLAINTEXT_PORT: "9092"
   KAFKA_CONTROLLER_PORT: "9093"
-  
-  # Cluster settings
-  KAFKA_CLUSTER_ID: "MWYyM2Y5NmUtNTczYi00MjRkLWI5NjAtOWMwNzM4YWM"
-  
+
   # Topic configuration
   KAFKA_MUSIC_REVIEWS_TOPIC: "music-reviews-topic"
   KAFKA_SOCIAL_MEDIA_TOPIC: "social-media-topic"
   KAFKA_USER_INPUT_TOPIC: "user-input-topic"
   KAFKA_RECOMMENDATIONS_TOPIC: "recommendations-topic"
-  
+
   # Connector settings
   KAFKA_CONNECT_PORT: "8083"
   KAFKA_CONNECT_GROUP_ID: "kafka-connect-group"

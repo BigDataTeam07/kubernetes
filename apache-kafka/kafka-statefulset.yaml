@@ -4,7 +4,7 @@ metadata:
   name: amazon-music-review-kafka
   namespace: amazon-music-review
 spec:
-  serviceName: "${KAFKA_SERVICE_NAME}"
+  serviceName: "amazon-music-review-kafka-service"
   replicas: 1
   selector:
     matchLabels:
@@ -30,33 +30,16 @@ spec:
               mountPath: /var/lib/kafka/data
             - name: format-disk
               mountPath: /tmp/format
-          envFrom:
-            - configMapRef:
-                name: amazon-music-review-env
           env:
             - name: CLUSTER_ID
-              valueFrom:
-                configMapKeyRef:
-                  name: amazon-music-review-env
-                  key: KAFKA_CLUSTER_ID
-            - name: POD_IP
-              valueFrom:
-                fieldRef:
-                  fieldPath: status.podIP
+              value: "MWYyM2Y5NmUtNTczYi00MjRkLWI5NjAtOWMwNzM4YWM"
           command:
             - /bin/bash
             - -c
             - |
-              # Replace env variables in server.properties
-              envsubst < /opt/kafka/config/kraft/server.properties > /tmp/server.properties.tmp
-              cp /tmp/server.properties.tmp /opt/kafka/config/kraft/server.properties
-              
               # Debugging info
               echo "Starting Kafka container..."
               echo "CLUSTER_ID=$CLUSTER_ID"
-              echo "KAFKA_SERVICE_NAME=$KAFKA_SERVICE_NAME"
-              echo "KAFKA_PLAINTEXT_PORT=$KAFKA_PLAINTEXT_PORT"
-              echo "KAFKA_CONTROLLER_PORT=$KAFKA_CONTROLLER_PORT"
               echo "Config path check:"
               ls -la /opt/kafka/config/kraft/
               echo "Contents of config file:"

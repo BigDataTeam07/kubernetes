@@ -8,13 +8,13 @@ data:
     # Kafka KRaft settings
     process.roles=broker,controller
     node.id=1
-    controller.quorum.voters=1@$(KAFKA_SERVICE_NAME):$(KAFKA_CONTROLLER_PORT)
+    controller.quorum.voters=1@amazon-music-review-kafka-service:9093
 
     # Listeners
-    listeners=PLAINTEXT://:$(KAFKA_PLAINTEXT_PORT),CONTROLLER://:$(KAFKA_CONTROLLER_PORT)
+    listeners=PLAINTEXT://:9092,CONTROLLER://:9093
     inter.broker.listener.name=PLAINTEXT
     controller.listener.names=CONTROLLER
-    advertised.listeners=PLAINTEXT://$(KAFKA_SERVICE_NAME):$(KAFKA_PLAINTEXT_PORT)
+    advertised.listeners=PLAINTEXT://amazon-music-review-kafka-service:9092
 
     # Log directory - changed to a path we know works
     log.dirs=/tmp/kraft-logs
