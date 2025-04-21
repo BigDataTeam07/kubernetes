@@ -7,7 +7,7 @@
     "finished.path": "/app/data/processed",
     "error.path": "/app/data/error",
     "input.file.pattern": ".*\\.avro$",
-    "topic": "music-reviews-topic",
+    "topic": "${KAFKA_MUSIC_REVIEWS_TOPIC}",
     "schema.generation.enabled": "true"
   }
 }
