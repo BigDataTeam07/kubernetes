@@ -1,0 +1,13 @@
+{
+  "name": "music-review-spooldir-source",
+  "config": {
+    "connector.class": "com.github.jcustenborder.kafka.connect.spooldir.SpoolDirAvroSourceConnector",
+    "tasks.max": "1",
+    "input.path": "/app/data",
+    "finished.path": "/app/data/processed",
+    "error.path": "/app/data/error",
+    "input.file.pattern": ".*\\.avro$",
+    "topic": "music-reviews-topic",
+    "schema.generation.enabled": "true"
+  }
+}
