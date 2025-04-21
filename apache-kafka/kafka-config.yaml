@@ -16,8 +16,8 @@ data:
     controller.listener.names=CONTROLLER
     advertised.listeners=PLAINTEXT://amazon-music-review-kafka-service:9092
 
-    # Log directory
-    log.dirs=/var/lib/kafka/data
+    # Log directory - changed to a path we know works
+    log.dirs=/tmp/kraft-logs
 
     # Other settings
     num.partitions=3
