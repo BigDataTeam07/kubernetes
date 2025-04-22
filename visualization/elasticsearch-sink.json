@@ -1,0 +1,16 @@
+{
+  "name": "elasticsearch-sink",
+  "config": {
+    "connector.class": "io.confluent.connect.elasticsearch.ElasticsearchSinkConnector",
+    "tasks.max": "1",
+    "topics": "music-reviews-topic,social-media-topic,recommendations-topic",
+    "connection.url": "http://elasticsearch-service:9200",
+    "type.name": "_doc",
+    "key.ignore": "true",
+    "schema.ignore": "true",
+    "transforms": "extractTimestamp",
+    "transforms.extractTimestamp.type": "org.apache.kafka.connect.transforms.TimestampConverter$Value",
+    "transforms.extractTimestamp.field": "timestamp",
+    "transforms.extractTimestamp.target.type": "Timestamp"
+  }
+}

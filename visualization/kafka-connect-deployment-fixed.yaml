@@ -1,0 +1,141 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kafka-connect-config
+  namespace: amazon-music-review
+data:
+  elasticsearch-sink.json: |
+    {
+      "name": "elasticsearch-sink",
+      "config": {
+        "connector.class": "io.confluent.connect.elasticsearch.ElasticsearchSinkConnector",
+        "tasks.max": "1",
+        "topics": "music-reviews-topic,social-media-topic,recommendations-topic",
+        "connection.url": "http://elasticsearch-service:9200",
+        "type.name": "_doc",
+        "key.ignore": "true",
+        "schema.ignore": "true"
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-connect
+  namespace: amazon-music-review
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka-connect
+  template:
+    metadata:
+      labels:
+        app: kafka-connect
+    spec:
+      containers:
+      - name: kafka-connect
+        image: confluentinc/cp-kafka-connect:7.5.0
+        env:
+        - name: CONNECT_BOOTSTRAP_SERVERS
+          value: amazon-music-review-kafka-service:9092
+        - name: CONNECT_GROUP_ID
+          value: amazon-music-review-connect-group
+        - name: CONNECT_CONFIG_STORAGE_TOPIC
+          value: amazon-music-review-connect-configs
+        - name: CONNECT_OFFSET_STORAGE_TOPIC
+          value: amazon-music-review-connect-offsets
+        - name: CONNECT_STATUS_STORAGE_TOPIC
+          value: amazon-music-review-connect-status
+        - name: CONNECT_KEY_CONVERTER
+          value: org.apache.kafka.connect.json.JsonConverter
+        - name: CONNECT_VALUE_CONVERTER
+          value: org.apache.kafka.connect.json.JsonConverter
+        - name: CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE
+          value: "false"
+        - name: CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE
+          value: "false"
+        - name: CONNECT_INTERNAL_KEY_CONVERTER
+          value: org.apache.kafka.connect.json.JsonConverter
+        - name: CONNECT_INTERNAL_VALUE_CONVERTER
+          value: org.apache.kafka.connect.json.JsonConverter
+        - name: CONNECT_REST_ADVERTISED_HOST_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: CONNECT_REST_PORT
+          value: "8083"
+        - name: CONNECT_PLUGIN_PATH
+          value: /usr/share/java,/usr/share/confluent-hub-components
+        - name: CONNECT_LOG4J_ROOT_LOGLEVEL
+          value: INFO
+        - name: CONNECT_PRODUCER_COMPRESSION_TYPE
+          value: "gzip"
+        volumeMounts:
+        - name: kafka-connect-config
+          mountPath: /tmp/elasticsearch-sink.json
+          subPath: elasticsearch-sink.json
+        command:
+        - /bin/bash
+        - -c
+        - |
+          echo "Starting Kafka Connect..."
+          # Install the Elasticsearch connector
+          confluent-hub install --no-prompt confluentinc/kafka-connect-elasticsearch:14.0.9
+          
+          # Start the Connect worker
+          /etc/confluent/docker/run &
+          
+          # Wait for Connect to start
+          echo "Waiting for Connect to start..."
+          sleep 60
+          
+          # Register connector
+          echo "Registering Elasticsearch connector..."
+          curl -X POST -H "Content-Type: application/json" --data @/tmp/elasticsearch-sink.json http://localhost:8083/connectors || echo "Failed to register connector"
+          
+          # Keep container running
+          tail -f /dev/null
+        ports:
+        - containerPort: 8083
+          name: http
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8083
+          initialDelaySeconds: 90
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 5
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8083
+          initialDelaySeconds: 120
+          periodSeconds: 20
+          timeoutSeconds: 5
+          failureThreshold: 3
+        resources:
+          limits:
+            cpu: "1"
+            memory: "1Gi"
+          requests:
+            cpu: "500m"
+            memory: "512Mi"
+      volumes:
+      - name: kafka-connect-config
+        configMap:
+          name: kafka-connect-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-connect-service
+  namespace: amazon-music-review
+spec:
+  selector:
+    app: kafka-connect
+  ports:
+  - port: 8083
+    targetPort: 8083
+  type: ClusterIP
