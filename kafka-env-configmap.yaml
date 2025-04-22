@@ -8,6 +8,7 @@ data:
   KAFKA_SERVICE_NAME: "amazon-music-review-kafka-service"
   KAFKA_PLAINTEXT_PORT: "9092"
   KAFKA_CONTROLLER_PORT: "9093"
+  KAFKA_BOOTSTRAP_SERVERS: "amazon-music-review-kafka-service:9092"
 
   # Topic configuration
   KAFKA_MUSIC_REVIEWS_TOPIC: "music-reviews-topic"
