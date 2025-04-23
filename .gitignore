@@ -1,3 +1,4 @@
 .env
 processed-cluster.yaml
 *.pem
+commands.sh
