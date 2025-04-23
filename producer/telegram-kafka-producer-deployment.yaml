@@ -1,15 +1,4 @@
-apiVersion: v1
-kind: Secret
-metadata:
-  name: telegram-bot-credentials
-  namespace: amazon-music-review
-type: Opaque
-data:
-  # These values need to be replaced with actual encoded values
-  # Use echo -n "your-bot-token" | base64 to generate
-  telegram-bot-token: YW1hem9uLW11c2ljLXJldmlldy1ib3QtdG9rZW4=   # Replace with actual token
-  telegram-bot-username: YW1hem9uLW11c2ljLXJldmlldy1ib3Q=         # Replace with actual username
----
+## Secret resource is not uploaded on GitHub
 apiVersion: apps/v1
 kind: Deployment
 metadata:

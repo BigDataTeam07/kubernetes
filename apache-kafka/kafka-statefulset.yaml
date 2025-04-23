@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: kafka
-          image: apache/kafka:4.0.0
+          image: 119002862962.dkr.ecr.ap-southeast-1.amazonaws.com/amazon-music-review/kafka:4.0.0
           ports:
             - containerPort: 9092
               name: plaintext
