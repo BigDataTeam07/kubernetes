@@ -2,6 +2,7 @@
 processed-cluster.yaml
 *.pem
 commands.sh
+commands.md
 
 # Secrets
 telegram-bot-secret.yaml
