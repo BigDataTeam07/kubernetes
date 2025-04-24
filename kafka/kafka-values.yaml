@@ -17,25 +17,6 @@ image:
   tag: 4.0.0
   pullPolicy: IfNotPresent
 
-## Create a custom init container to create topics
-extraInitContainers:
-  - name: create-topics
-    image: docker.io/bitnami/kafka:4.0.0
-    command:
-      - /bin/bash
-      - -c
-      - |
-        echo "Waiting for Kafka to be ready..."
-        sleep 60
-        echo "Creating topics..."
-        for topic in "social-media-topic" "user-sentiment-topic" "music-recommendation-topic"; do
-          echo "Creating topic: $topic"
-          kafka-topics.sh --create --if-not-exists --topic "$topic" \
-            --bootstrap-server localhost:9092 \
-            --replication-factor 1 --partitions 3
-        done
-        echo "Topic creation complete!"
-
 ## General Kafka configuration
 extraEnvVars:
   - name: KAFKA_CFG_NODE_ID
@@ -105,3 +86,17 @@ transactionStateLogMinIsr: 1
 
 ## Set the namespace
 namespaceOverride: "kafka-ns"
+
+## kafka topics
+provisioning:
+  enabled: true
+  topics:
+    - name: social-media-topic
+      partitions: 3
+      replicationFactor: 1
+    - name: user-sentiment-topic
+      partitions: 3
+      replicationFactor: 1
+    - name: recommendations-topic
+      partitions: 3
+      replicationFactor: 1
