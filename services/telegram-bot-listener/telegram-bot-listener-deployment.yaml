@@ -1,23 +1,22 @@
-## Secret resource is not uploaded on GitHub
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: telegram-kafka-producer
+  name: telegram-bot-listener
   namespace: amazon-music-review
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: telegram-kafka-producer
+      app: telegram-bot-listener
   template:
     metadata:
       labels:
-        app: telegram-kafka-producer
+        app: telegram-bot-listener
     spec:
       containers:
-        - name: telegram-kafka-producer
-          image: telegram-kafka-producer:latest
-          imagePullPolicy: IfNotPresent
+        - name: telegram-bot-listener
+          image: ${DOCKER_IMAGE_TAG} # Will be replaced by Jenkins
+          imagePullPolicy: Always
           env:
             - name: TELEGRAM_BOT_TOKEN
               valueFrom:
@@ -30,9 +29,22 @@ spec:
                   name: telegram-bot-credentials
                   key: telegram-bot-username
             - name: KAFKA_BOOTSTRAP_SERVERS
-              value: "amazon-music-review-kafka-service.amazon-music-review.svc.cluster.local:9092"
+              # Updated connection string for the Helm-deployed Kafka
+              value: "bitnami-kafka.kafka-ns.svc.cluster.local:9092"
             - name: KAFKA_TOPIC
               value: "social-media-topic"
+          # readinessProbe:
+          #   httpGet:
+          #     path: /health
+          #     port: 8080
+          #   initialDelaySeconds: 30
+          #   periodSeconds: 10
+          # livenessProbe:
+          #   httpGet:
+          #     path: /health
+          #     port: 8080
+          #   initialDelaySeconds: 60
+          #   periodSeconds: 20
           resources:
             limits:
               memory: "512Mi"
@@ -44,11 +56,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: telegram-kafka-producer-service
+  name: telegram-bot-listener-service
   namespace: amazon-music-review
 spec:
   selector:
-    app: telegram-kafka-producer
+    app: telegram-bot-listener
   ports:
     - port: 80
       targetPort: 8080
