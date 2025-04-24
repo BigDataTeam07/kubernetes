@@ -55,16 +55,10 @@ spec:
           env:
             - name: BITNAMI_DEBUG
               value: "false"
-            - name: KAFKA_CFG_NODE_ID
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.annotations['kafka.bitnami.com/node-id']
+            - name: KAFKA_CFG_BROKER_ID_GENERATION_ENABLE
+              value: "true"
             - name: KAFKA_CFG_PROCESS_ROLES
               value: "broker,controller"
-            - name: KAFKA_CFG_CONTROLLER_QUORUM_VOTERS
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.annotations['kafka.bitnami.com/controller-quorum-voters']
             - name: KAFKA_CFG_CONTROLLER_LISTENER_NAMES
               value: "CONTROLLER"
             - name: KAFKA_CFG_INTER_BROKER_LISTENER_NAME

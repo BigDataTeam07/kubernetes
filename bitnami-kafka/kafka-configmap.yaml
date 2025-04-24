@@ -7,34 +7,6 @@ data:
   init-kafka.sh: |
     #!/bin/bash
 
-    # Extract the pod index from the hostname
-    if [[ "${POD_NAME}" =~ -([0-9]+)$ ]]; then
-      NODE_ID=$((${BASH_REMATCH[1]} + 1))
-      echo "Setting NODE_ID to $NODE_ID"
-      export KAFKA_CFG_NODE_ID=$NODE_ID
-    else
-      echo "Could not extract pod index from POD_NAME: ${POD_NAME}"
-      export KAFKA_CFG_NODE_ID=1
-    fi
-
-    # Generate controller quorum voters if needed
-    if [ -z "$KAFKA_CFG_CONTROLLER_QUORUM_VOTERS" ]; then
-      VOTERS=""
-      for ((i=0; i<${REPLICAS:-3}; i++)); do
-        if [ "$i" -gt 0 ]; then
-          VOTERS="${VOTERS},"
-        fi
-        ID=$((i + 1))
-        VOTERS="${VOTERS}${ID}@bitnami-kafka-${i}.bitnami-kafka-headless.kafka-ns.svc.cluster.local:9093"
-      done
-      export KAFKA_CFG_CONTROLLER_QUORUM_VOTERS="$VOTERS"
-      echo "Generated quorum voters: $KAFKA_CFG_CONTROLLER_QUORUM_VOTERS"
-    fi
-
-    # Set the advertised listeners based on pod hostname
-    export KAFKA_CFG_ADVERTISED_LISTENERS="PLAINTEXT://${POD_NAME}.bitnami-kafka-headless.kafka-ns.svc.cluster.local:9092"
-    echo "Set advertised listeners: $KAFKA_CFG_ADVERTISED_LISTENERS"
-
     # Create topics "social-media-topic", "user-sentiment-topic", and "music-recommendation-topic"
     TOPICS=("social-media-topic" "user-sentiment-topic" "music-recommendation-topic")
     for TOPIC in "${TOPICS[@]}"; do
