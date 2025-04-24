@@ -14,32 +14,35 @@ spec:
         app: jenkins
     spec:
       serviceAccountName: jenkins
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
       containers:
-      - name: jenkins
-        image: jenkins/jenkins:lts
-        ports:
-        - containerPort: 8080
-          name: web
-          protocol: TCP
-        - containerPort: 50000
-          name: agent
-          protocol: TCP
-        resources:
-          limits:
-            cpu: 1500m
-            memory: 3Gi
-          requests:
-            cpu: 750m
-            memory: 1500Mi
-        volumeMounts:
-        - name: jenkins-home
-          mountPath: /var/jenkins_home
-        - name: docker-sock
-          mountPath: /var/run/docker.sock
+        - name: jenkins
+          image: jenkins/jenkins:lts
+          ports:
+            - containerPort: 8080
+              name: web
+              protocol: TCP
+            - containerPort: 50000
+              name: agent
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 1500m
+              memory: 3Gi
+            requests:
+              cpu: 750m
+              memory: 1500Mi
+          volumeMounts:
+            - name: jenkins-home
+              mountPath: /var/jenkins_home
+            - name: docker-sock
+              mountPath: /var/run/docker.sock
       volumes:
-      - name: jenkins-home
-        persistentVolumeClaim:
-          claimName: jenkins-pvc
-      - name: docker-sock
-        hostPath:
-          path: /var/run/docker.sock
+        - name: jenkins-home
+          persistentVolumeClaim:
+            claimName: jenkins-pvc
+        - name: docker-sock
+          hostPath:
+            path: /var/run/docker.sock
