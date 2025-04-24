@@ -6,3 +6,8 @@ commands.md
 
 # Secrets
 telegram-bot-secret.yaml
+
+# vscode settings
+.vscode/
+# idea settings
+.idea/
