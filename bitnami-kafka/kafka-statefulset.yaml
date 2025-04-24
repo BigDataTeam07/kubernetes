@@ -5,7 +5,7 @@ metadata:
   namespace: kafka-ns
 spec:
   serviceName: "bitnami-kafka-headless"
-  replicas: 1
+  replicas: 1 # Set to 1 for development, increase for production
   podManagementPolicy: Parallel
   updateStrategy:
     type: RollingUpdate
@@ -29,20 +29,6 @@ spec:
                       values:
                         - bitnami-kafka
                 topologyKey: kubernetes.io/hostname
-      initContainers:
-        - name: init-kafka
-          image: bitnami/shell:11
-          command: ["/bin/bash", "/scripts/init-kafka.sh"]
-          env:
-            - name: POD_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
-            - name: REPLICAS
-              value: "3"
-          volumeMounts:
-            - name: init-scripts
-              mountPath: /scripts
       containers:
         - name: kafka
           image: bitnami/kafka:4.0.0
@@ -57,12 +43,10 @@ spec:
               value: "false"
             - name: KAFKA_CFG_BROKER_ID_GENERATION_ENABLE
               value: "true"
-            - name: KAFKA_CFG_NODE_ID
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
             - name: KAFKA_CFG_PROCESS_ROLES
               value: "broker,controller"
+            - name: KAFKA_CFG_CONTROLLER_QUORUM_VOTERS
+              value: "1@bitnami-kafka-0.bitnami-kafka-headless.kafka-ns.svc.cluster.local:9093"
             - name: KAFKA_CFG_CONTROLLER_LISTENER_NAMES
               value: "CONTROLLER"
             - name: KAFKA_CFG_INTER_BROKER_LISTENER_NAME
@@ -70,19 +54,18 @@ spec:
             - name: KAFKA_CFG_LISTENERS
               value: "PLAINTEXT://:9092,CONTROLLER://:9093"
             - name: KAFKA_CFG_ADVERTISED_LISTENERS
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.annotations['kafka.bitnami.com/advertised-listeners']
+              value: "PLAINTEXT://$(POD_NAME).bitnami-kafka-headless.kafka-ns.svc.cluster.local:9092"
             - name: KAFKA_CFG_NUM_PARTITIONS
               value: "3"
+            # For single node setup, set replication factor to 1
             - name: KAFKA_CFG_DEFAULT_REPLICATION_FACTOR
-              value: "2"
+              value: "1"
             - name: KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR
-              value: "2"
+              value: "1"
             - name: KAFKA_CFG_TRANSACTION_STATE_LOG_REPLICATION_FACTOR
-              value: "2"
+              value: "1"
             - name: KAFKA_CFG_TRANSACTION_STATE_LOG_MIN_ISR
-              value: "2"
+              value: "1"
             - name: KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE
               value: "true"
             - name: KAFKA_CFG_DELETE_TOPIC_ENABLE
@@ -113,14 +96,7 @@ spec:
               port: 9092
             initialDelaySeconds: 30
             periodSeconds: 10
-      volumes:
-        - name: init-scripts
-          configMap:
-            name: bitnami-kafka-config
-            items:
-              - key: init-kafka.sh
-                path: init-kafka.sh
-            defaultMode: 0755
+      volumes: []
   volumeClaimTemplates:
     - metadata:
         name: data
