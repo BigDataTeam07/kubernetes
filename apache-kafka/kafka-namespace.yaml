@@ -1,4 +1,4 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: amazon-music-review
+  name: amazon-music-review-kafka

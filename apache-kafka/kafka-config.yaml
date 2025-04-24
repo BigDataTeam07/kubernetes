@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: amazon-music-review-kafka-config
-  namespace: amazon-music-review
+  namespace: amazon-music-review-kafka
 data:
   server.properties: |
     # Kafka KRaft settings

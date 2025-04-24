@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: amazon-music-review-kafka
-  namespace: amazon-music-review
+  namespace: amazon-music-review-kafka
 spec:
   serviceName: "amazon-music-review-kafka-service"
   replicas: 1
