@@ -57,6 +57,10 @@ spec:
               value: "false"
             - name: KAFKA_CFG_BROKER_ID_GENERATION_ENABLE
               value: "true"
+            - name: KAFKA_CFG_NODE_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
             - name: KAFKA_CFG_PROCESS_ROLES
               value: "broker,controller"
             - name: KAFKA_CFG_CONTROLLER_LISTENER_NAMES
