@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: bitnami-kafka
+  namespace: kafka-ns
+spec:
+  serviceName: "bitnami-kafka-service"
+  replicas: 3 # Increased for better availability
+  selector:
+    matchLabels:
+      app: bitnami-kafka
+  template:
+    metadata:
+      labels:
+        app: bitnami-kafka
+    spec:
+      containers:
+        - name: kafka
+          image: bitnami/kafka:4.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 9092
+              name: plaintext
+            - containerPort: 9093
+              name: controller
+          env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: KAFKA_CFG_NODE_ID
+              value: "1"
+            - name: KAFKA_CFG_PROCESS_ROLES
+              value: "broker,controller"
+            - name: KAFKA_CFG_CONTROLLER_QUORUM_VOTERS
+              value: "1@bitnami-kafka-0.bitnami-kafka-service.kafka-ns.svc.cluster.local:9093,2@bitnami-kafka-1.bitnami-kafka-service.bitnami-kafka.svc.cluster.local:9093,3@bitnami-kafka-2.bitnami-kafka-service.bitnami-kafka.svc.cluster.local:9093"
+            - name: KAFKA_CFG_CONTROLLER_LISTENER_NAMES
+              value: "CONTROLLER"
+            - name: KAFKA_CFG_INTER_BROKER_LISTENER_NAME
+              value: "PLAINTEXT"
+            - name: KAFKA_CFG_LISTENERS
+              value: "PLAINTEXT://:9092,CONTROLLER://:9093"
+            - name: KAFKA_CFG_ADVERTISED_LISTENERS
+              value: "PLAINTEXT://$(POD_NAME).bitnami-kafka-service.kafka-ns.svc.cluster.local:9092"
+            - name: KAFKA_CFG_NUM_PARTITIONS
+              value: "3"
+            - name: KAFKA_CFG_DEFAULT_REPLICATION_FACTOR
+              value: "2" # Increased replication factor
+            - name: KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR
+              value: "2"
+            - name: KAFKA_CFG_TRANSACTION_STATE_LOG_REPLICATION_FACTOR
+              value: "2"
+            - name: KAFKA_CFG_TRANSACTION_STATE_LOG_MIN_ISR
+              value: "2"
+            - name: KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE
+              value: "true"
+            - name: KAFKA_CFG_DELETE_TOPIC_ENABLE
+              value: "true"
+            - name: KAFKA_CFG_LOG_RETENTION_HOURS
+              value: "168"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          volumeMounts:
+            - name: kafka-data
+              mountPath: /bitnami/kafka
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "500m"
+            limits:
+              memory: "4Gi"
+              cpu: "2"
+          livenessProbe:
+            tcpSocket:
+              port: 9092
+            initialDelaySeconds: 60
+            periodSeconds: 20
+          readinessProbe:
+            tcpSocket:
+              port: 9092
+            initialDelaySeconds: 30
+            periodSeconds: 10
+      volumes:
+        - name: kafka-data
+          persistentVolumeClaim:
+            claimName: bitnami-kafka-data

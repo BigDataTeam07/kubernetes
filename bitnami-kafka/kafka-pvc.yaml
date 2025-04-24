@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: bitnami-kafka-data
+  namespace: kafka-ns
+spec:
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: ebs-sc
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
