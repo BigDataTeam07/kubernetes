@@ -94,13 +94,14 @@ spec:
           livenessProbe:
             tcpSocket:
               port: 9092
-            initialDelaySeconds: 60
+            initialDelaySeconds: 240
             periodSeconds: 20
-          readinessProbe:
-            tcpSocket:
-              port: 9092
-            initialDelaySeconds: 30
-            periodSeconds: 10
+          # For one broker setup, no need for a readiness probe
+          # readinessProbe:
+          #   tcpSocket:
+          #     port: 9092
+          #   initialDelaySeconds: 180
+          #   periodSeconds: 10
       volumes: []
   volumeClaimTemplates:
     - metadata:
