@@ -17,6 +17,9 @@ spec:
       labels:
         app: bitnami-kafka
     spec:
+      securityContext:
+        fsGroup: 1001 # Adding fsGroup for Bitnami Kafka
+        runAsUser: 1001 # Bitnami Kafka runs as user 1001
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -41,8 +44,10 @@ spec:
           env:
             - name: BITNAMI_DEBUG
               value: "false"
-            - name: KAFKA_CFG_BROKER_ID_GENERATION_ENABLE
-              value: "true"
+            - name: KAFKA_CFG_NODE_ID
+              value: "1"
+            - name: KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP
+              value: "PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT"
             - name: KAFKA_CFG_PROCESS_ROLES
               value: "broker,controller"
             - name: KAFKA_CFG_CONTROLLER_QUORUM_VOTERS
