@@ -1,0 +1,107 @@
+## Bitnami Kafka Helm Chart Values
+## Reference: https://github.com/bitnami/charts/tree/main/bitnami/kafka
+
+## Global parameters
+global:
+  storageClass: "ebs-sc" # Using your EBS storage class
+
+## Kafka parameters
+replicaCount: 1 # Single node as per your current setup
+
+heapOpts: "-Xmx2048m -Xms1024m"
+
+## Specify the Kafka version
+image:
+  registry: docker.io
+  repository: bitnami/kafka
+  tag: 4.0.0
+  pullPolicy: IfNotPresent
+
+## Create a custom init container to create topics
+extraInitContainers:
+  - name: create-topics
+    image: docker.io/bitnami/kafka:4.0.0
+    command:
+      - /bin/bash
+      - -c
+      - |
+        echo "Waiting for Kafka to be ready..."
+        sleep 60
+        echo "Creating topics..."
+        for topic in "social-media-topic" "user-sentiment-topic" "music-recommendation-topic"; do
+          echo "Creating topic: $topic"
+          kafka-topics.sh --create --if-not-exists --topic "$topic" \
+            --bootstrap-server localhost:9092 \
+            --replication-factor 1 --partitions 3
+        done
+        echo "Topic creation complete!"
+
+## General Kafka configuration
+extraEnvVars:
+  - name: KAFKA_CFG_NODE_ID
+    value: "1"
+  - name: KAFKA_CFG_PROCESS_ROLES
+    value: "broker,controller"
+  - name: KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE
+    value: "true"
+  - name: KAFKA_CFG_DELETE_TOPIC_ENABLE
+    value: "true"
+  - name: KAFKA_CFG_NUM_PARTITIONS
+    value: "3"
+  - name: KAFKA_CFG_LOG_RETENTION_HOURS
+    value: "168"
+
+## Listeners and network configuration
+listeners:
+  client:
+    name: PLAINTEXT
+    protocol: PLAINTEXT
+  controller:
+    name: CONTROLLER
+    protocol: PLAINTEXT
+
+interBrokerListenerName: PLAINTEXT
+
+## Controller configurations
+controller:
+  replicaCount: 1
+
+## Authentication
+## Set to false as your current setup uses plaintext
+auth:
+  clientProtocol: plaintext
+  interBrokerProtocol: plaintext
+
+## Persistence configuration
+persistence:
+  enabled: true
+  size: 10Gi
+
+## Resource requests and limits
+resources:
+  requests:
+    memory: 2Gi
+    cpu: 500m
+  limits:
+    memory: 4Gi
+    cpu: 2
+
+## Service settings
+service:
+  client:
+    port: 9092
+  controller:
+    port: 9093
+
+## Disable network policies
+networkPolicy:
+  enabled: false
+
+## Replication factors
+defaultReplicationFactor: 1
+offsetsTopicReplicationFactor: 1
+transactionStateLogReplicationFactor: 1
+transactionStateLogMinIsr: 1
+
+## Set the namespace
+namespaceOverride: "kafka-ns"
