@@ -28,12 +28,13 @@ amazon-music-review/
 │   └── README.md                 # Documentation for Kafka deployment
 │
 ├── services/                     # Application services
-│   ├── telegram-producer/        # Telegram bot service
+│   ├── telegram-bot-listener/        # Telegram bot service
 │   │   ├── Dockerfile
 │   │   ├── build.gradle.kts
 │   │   ├── src/
 │   │   └── k8s/
-│   │       └── telegram-kafka-producer-deployment.yaml
+│   │       └── telegram-bot-listener-deployment.yaml
+|   │       └── telegram-bot-secret.yaml
 │   │
 │   ├── sentiment-analyzer/       # Sentiment analysis service
 │   │   ├── Dockerfile
