@@ -8,4 +8,3 @@ echo "Access Jenkins at: http://${JENKINS_URL}:8080"
 echo ""
 echo "To get the initial admin password, run:"
 echo "kubectl -n jenkins exec \$(kubectl -n jenkins get pods -l app=jenkins -o jsonpath='{.items[0].metadata.name}') -- cat /var/jenkins_home/secrets/initialAdminPassword"
-kubectl -n jenkins exec $(kubectl -n jenkins get pods -l app=jenkins -o jsonpath='{.items[0].metadata.name}') -- cat /var/jenkins_home/secrets/initialAdminPassword

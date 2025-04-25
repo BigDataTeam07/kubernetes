@@ -6,8 +6,8 @@ pipeline {
         AWS_REGION = "ap-southeast-1"
         DOCKER_IMAGE_TAG = "${ECR_REPOSITORY}:${env.BUILD_NUMBER}"
         DOCKER_IMAGE_LATEST = "${ECR_REPOSITORY}:latest"
-        K8S_NAMESPACE = "amazon-music-review"
-        K8S_DEPLOYMENT = "telegram-kafka-producer"
+        K8S_NAMESPACE = "telegram-bot-listener"
+        K8S_DEPLOYMENT = "telegram-bot-listener-deployment"
     }
     
     stages {
