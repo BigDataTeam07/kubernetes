@@ -11,3 +11,5 @@ telegram-bot-secret.yaml
 .vscode/
 # idea settings
 .idea/
+
+kafka-values.yaml
