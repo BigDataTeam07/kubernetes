@@ -13,3 +13,4 @@ telegram-bot-secret.yaml
 .idea/
 
 kafka-values.yaml
+cloudfront-config.json
