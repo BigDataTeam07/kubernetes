@@ -1,14 +1,15 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: jenkins-ingress
+  name: jenkins-root
   namespace: jenkins
 spec:
   ingressClassName: nginx
   rules:
-    - http:
+    - host: jenkins.example.com # You can use a made-up hostname for testing
+      http:
         paths:
-          - path: /jenkins
+          - path: /
             pathType: Prefix
             backend:
               service:
