@@ -14,3 +14,5 @@ telegram-bot-secret.yaml
 
 kafka-values.yaml
 cloudfront-config.json
+# AWS
+eksctl.exe
