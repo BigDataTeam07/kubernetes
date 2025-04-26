@@ -4,19 +4,16 @@ metadata:
   name: jenkins-ingress
   namespace: jenkins
   annotations:
-    # Use nginx ingress class
-    kubernetes.io/ingress.class: nginx
-    # Optional: Rewrite target to remove /jenkins prefix if Jenkins doesn't expect it
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
-  ingressClassName: nginx # Reference the IngressClass created by nginx-ingress.yaml
+  ingressClassName: nginx
   rules:
     - http:
         paths:
-          - path: /jenkins(/|$)(.*) # Route requests starting with /jenkins
+          - path: /jenkins
             pathType: Prefix
             backend:
               service:
-                name: jenkins # Name of the Jenkins service
+                name: jenkins
                 port:
-                  number: 8080 # Port the Jenkins service listens on
+                  number: 8080

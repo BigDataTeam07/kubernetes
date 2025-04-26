@@ -20,6 +20,9 @@ spec:
       containers:
         - name: jenkins
           image: jenkins/jenkins:lts
+          env:
+            - name: JENKINS_OPTS
+              value: "--prefix=/jenkins"
           ports:
             - containerPort: 8080
               name: web

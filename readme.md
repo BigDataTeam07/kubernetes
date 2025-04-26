@@ -2,10 +2,10 @@
 
 This document outlines the recommended project structure for the Amazon Music Review project using Helm charts for Kafka deployment on AWS EKS.
 
-## Project Directory Structure
+## Project Structure
 
 ```
-amazon-music-review/
+Kubernetes/
 ├── aws-eks-cluster/              # EKS cluster configuration
 │   ├── amazon-music-review-cluster.yaml
 │   ├── deploy.sh
@@ -27,7 +27,7 @@ amazon-music-review/
 │   ├── migrate-to-helm.sh        # Migration script from manual K8s to Helm
 │   └── README.md                 # Documentation for Kafka deployment
 │
-├── services/                     # Application services
+├── services/                     # Application micro-services
 │   ├── telegram-bot-listener/        # Telegram bot service
 │   │   ├── Dockerfile
 │   │   ├── build.gradle.kts
