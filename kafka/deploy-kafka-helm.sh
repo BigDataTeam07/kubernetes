@@ -33,7 +33,9 @@ echo "Installing Kafka using Helm chart..."
 helm install bitnami-kafka bitnami/kafka \
   --namespace kafka-ns \
   --values kafka-values.yaml \
-  --timeout 10m
+  --timeout 10m \
+  --debug \
+  --wait
 
 echo "Deployment initiated. Check status with:"
 echo "kubectl get pods -n kafka-ns"
