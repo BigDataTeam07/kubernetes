@@ -18,3 +18,4 @@ cloudfront-config.json
 eksctl.exe
 
 *.properties
+kafka-update-config

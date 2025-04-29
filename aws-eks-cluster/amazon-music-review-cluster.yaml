@@ -11,18 +11,13 @@ iam:
 
 nodeGroups:
   - name: ng-1
-    instanceType: t3.medium # Choose an appropriate instance type
-    desiredCapacity: 2
+    instanceType: t3.medium # 2vCPU, 4GB RAM
+    desiredCapacity: 3
     minSize: 1
-    maxSize: 3
+    maxSize: 4
     iam:
       instanceRoleARN: "arn:aws:iam::${AWS_ACCOUNT_ID}:role/amazon-music-review-eks-node-role"
     ssh:
       allow: true # Enable SSH access for debugging
       publicKeyName: ${AWS_EC2_KEY} # Replace with your EC2 key pair name
 
-# Add CloudWatch logging
-cloudWatch:
-  clusterLogging:
-    enableTypes:
-      ["api", "audit", "authenticator", "controllerManager", "scheduler"]
