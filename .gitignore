@@ -19,3 +19,4 @@ eksctl.exe
 
 *.properties
 kafka-update-config
+.DS_Store

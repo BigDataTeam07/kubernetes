@@ -79,3 +79,9 @@ Kubernetes/
 
 - **Kafka → Services**: All services depend on Kafka for messaging
 - **Services → Visualization**: Services produce data that's visualized by the ELK stackå
+
+## Kafka Configuration
+
+1. social-media-topic # telegram bot listener produce message to this topic
+2. user-sentiment-topic # user message being consumed by sentiment analyze engine and analyzed user sentiment with time stamp
+3. recommendations-topic # based on user-sentiment the generated recommendation music topic
